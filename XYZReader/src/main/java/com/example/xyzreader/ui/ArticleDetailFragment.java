@@ -14,6 +14,7 @@ import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -23,11 +24,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.databinding.FragmentArticleDetailBinding;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -127,10 +127,10 @@ public class ArticleDetailFragment extends Fragment implements
 
 
     private void bindViews() {
-        final TextView titleView = mBinding.articleTitle;
-        TextView bylineView = mBinding.articleByline;
+        final TextView titleView = mBinding.contentLayoutDetail.articleTitle;
+        TextView bylineView = mBinding.contentLayoutDetail.articleByline;
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = mBinding.articleBody;
+        TextView bodyView = mBinding.contentLayoutDetail.articleBody;
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -162,20 +162,11 @@ public class ArticleDetailFragment extends Fragment implements
                             DateUtils.FORMAT_ABBREV_ALL).toString()
                             + " by <font color='#ffffff'>" + mCursor.getString(ArticleLoader.Query.AUTHOR) + "</font>"));
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                            }
-                        }
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                        }
-                    });
+                Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                        .error(R.drawable.logo)
+                        .into(mPhotoView);
+
         }
     }
 
